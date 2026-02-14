@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">ComposeApp</string>
+    <!-- Permission titles -->
+    <string name="permission_ble_title">Bluetooth permission required</string>
+    <string name="permission_camera_title">Camera permission required</string>
+    <string name="permission_location_title">Location permission required</string>
+    <string name="permission_notification_title">Notification permission required</string>
+
+    <!-- Permission messages -->
+    <string name="permission_not_requested">
+    This feature requires permission to continue.
+</string>
+
+    <string name="permission_denied">
+    Permission denied. Please allow to proceed.
+</string>
+
+    <string name="permission_permanently_denied">
+    Permission permanently denied. Enable it from Settings.
+</string>
+
+    <string name="permission_granted">
+    Permission granted.
+</string>
+
+    <!-- Actions -->
+    <string name="permission_allow">Allow permission</string>
+
 </resources>

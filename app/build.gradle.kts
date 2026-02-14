@@ -21,7 +21,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
+        multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -35,11 +35,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -56,6 +56,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.mediation.test.suite)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.material3)
+    implementation(project(":bleLib"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -76,11 +79,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation("androidx.navigation:navigation-compose:2.5.0")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-
+    implementation("androidx.multidex:multidex:2.0.1")
     // Add these two lines
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(project(":dataLib"))
+    implementation(project(":bleLib"))
 
 // For Compose in Activity
 }

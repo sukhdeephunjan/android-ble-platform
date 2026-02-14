@@ -1,18 +1,15 @@
 package com.example.composeapp
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.composeapp.home.HomeScreen
 import com.example.composeapp.login.LoginRoute
-import com.example.composeapp.signup.SignUpScreenUi
+import com.example.composeapp.permission.flow.PermissionFlowHost
 import com.example.composeapp.signup.SignupRoute
 import com.example.composeapp.splash.SplashRoute
-import com.example.composeapp.splash.SplashViewModel
 
 @Composable
 fun SetNavigation() {
@@ -33,7 +30,7 @@ fun SetNavigation() {
         composable(Screen.Login.route) {
             LoginRoute(
                 onLoginSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                    navController.navigate(Screen.Permission.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }, onSignUpClick = {
@@ -57,12 +54,26 @@ fun SetNavigation() {
         composable(Screen.Home.route) {
             HomeScreen()
         }
+
+        composable(Screen.Permission.route) {
+            PermissionFlowHost(
+                permissionViewModel = hiltViewModel(),
+                permissionFlowViewModel = hiltViewModel(),
+                onAllPermissionsGranted = {
+                    navController.navigate(Screen.HomeScan.route) {
+                        popUpTo(Screen.Permission.route) { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
     object Home : Screen("home")
+    object HomeScan : Screen("scan")
+    object Permission : Screen("permission")
 
     object Profile : Screen("profile")
     object Login : Screen("login")
