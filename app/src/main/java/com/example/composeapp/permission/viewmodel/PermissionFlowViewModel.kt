@@ -18,38 +18,35 @@ import javax.inject.Inject
 class PermissionFlowViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
-    private var currentIndex = 0
-    // 🔹 Configure your permission order here
+    
+    // Only BLE permission is required
     private val steps = listOf(
-        PermissionStep(PermissionType.BLE, mandatory = true),
-        PermissionStep(PermissionType.NOTIFICATIONS, mandatory = false)
+        PermissionStep(PermissionType.BLE, mandatory = true)
     )
+    
     private val _state = MutableStateFlow(PermissionFlowState())
     val state: StateFlow<PermissionFlowState> = _state.asStateFlow()
 
-    // ----------------------------------
-    // ENTRY POINT
-    // ----------------------------------
     fun start(permissionViewModel: PermissionViewModel) {
-        moveToNextPermission(permissionViewModel)
+        processNextStep(permissionViewModel)
     }
 
     fun onPermissionResolved(permissionViewModel: PermissionViewModel) {
-        moveToNextPermission(permissionViewModel)
+        processNextStep(permissionViewModel)
     }
-    private fun moveToNextPermission(permissionViewModel: PermissionViewModel) {
-        val next = steps.firstOrNull { step ->
-            !PermissionChecker.isGranted(
-                context,
-                step.type
-            )
+
+    private fun processNextStep(permissionViewModel: PermissionViewModel) {
+        // Find the first step that hasn't been granted yet
+        val nextStep = steps.firstOrNull { step ->
+            !PermissionChecker.isGranted(context, step.type)
         }
 
-        if (next == null) {
+        if (nextStep == null) {
+            // All mandatory permissions are granted
             _state.value = PermissionFlowState(isComplete = true)
         } else {
-            permissionViewModel.setPermission(next.type)
-            _state.value = PermissionFlowState(currentPermission = next.type)
+            permissionViewModel.setPermission(nextStep.type)
+            _state.value = PermissionFlowState(currentPermission = nextStep.type)
         }
     }
 }

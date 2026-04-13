@@ -1,16 +1,21 @@
 package com.example.composeapp
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.composeapp.home.HomeScreen
+import com.example.composeapp.home.ScanScreen
 import com.example.composeapp.login.LoginRoute
 import com.example.composeapp.permission.flow.PermissionFlowHost
 import com.example.composeapp.signup.SignupRoute
 import com.example.composeapp.splash.SplashRoute
+import com.example.composeapp.bledeviceui.viewmodel.ScanViewModel
+import com.example.composeapp.bledeviceui.events.ScanEvent
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetNavigation() {
     val navController = rememberNavController()
@@ -19,12 +24,8 @@ fun SetNavigation() {
         navController = navController,
         startDestination = Screen.Splash.route
     ) {
-        composable(Screen.Splash.route) { backStackEntry ->
-            // ⚡ Scope ViewModel to NavBackStackEntry
+        composable(Screen.Splash.route) {
             SplashRoute(navController)
-
-            // Show splash UI
-            //SplashRoute()
         }
 
         composable(Screen.Login.route) {
@@ -42,7 +43,7 @@ fun SetNavigation() {
         composable(Screen.Signup.route) {
             SignupRoute(
                 onSignupSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                    navController.navigate(Screen.Permission.route) {
                         popUpTo(Screen.Signup.route) { inclusive = true }
                     }
                 }, onBackToLoginClick = {
@@ -53,6 +54,20 @@ fun SetNavigation() {
 
         composable(Screen.Home.route) {
             HomeScreen()
+        }
+
+        composable(Screen.HomeScan.route) {
+            val scanViewModel: ScanViewModel = hiltViewModel()
+            ScanScreen(
+                uiState = scanViewModel.uiState,
+                profiles = emptyList(), // Provide profiles if available in VM
+                onProfileSelected = { profileId ->
+                    scanViewModel.onEvent(ScanEvent.ProfileSelected(profileId))
+                },
+                onDeviceClick = { device ->
+                    scanViewModel.onEvent(ScanEvent.DeviceClicked(device.id))
+                }
+            )
         }
 
         composable(Screen.Permission.route) {

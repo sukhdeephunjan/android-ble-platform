@@ -6,20 +6,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.blelib.bleCore.BleProfile
 import com.example.composeapp.bledeviceui.uistate.ScanUiState
 import com.example.composeapp.bledeviceui.model.UiBleDevice
+import kotlinx.coroutines.flow.StateFlow
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanScreen(
-    uiState: ScanUiState,
+    uiState: StateFlow<ScanUiState>,
     profiles: List<BleProfile>,
     onProfileSelected: (String?) -> Unit,
     onDeviceClick: (UiBleDevice) -> Unit = {}
 ) {
+    val state by uiState.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -36,14 +41,14 @@ fun ScanScreen(
 
             ProfileFilterRow(
                 profiles = profiles,
-                selectedProfileId = uiState.selectedProfileId,
+                selectedProfileId = state.selectedProfileId,
                 onProfileSelected = onProfileSelected
             )
 
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             LazyColumn {
-                items(uiState.allDevices) { device ->
+                items(state.allDevices) { device ->
                     DeviceCard(
                         deviceName = device.name,
                         onClick = { onDeviceClick(device) }
@@ -73,4 +78,3 @@ fun DeviceCard(
         )
     }
 }
-

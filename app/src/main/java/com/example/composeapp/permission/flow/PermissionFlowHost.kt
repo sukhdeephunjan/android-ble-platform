@@ -3,6 +3,7 @@ package com.example.composeapp.permission.flow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.example.composeapp.permission.ui.PermissionScreen
 import com.example.composeapp.permission.viewmodel.PermissionFlowViewModel
 import com.example.composeapp.permission.viewmodel.PermissionViewModel
@@ -13,27 +14,28 @@ fun PermissionFlowHost(
     permissionFlowViewModel: PermissionFlowViewModel,
     onAllPermissionsGranted: () -> Unit
 ) {
-    val flowState = permissionFlowViewModel.state.collectAsState().value
+    val flowState by permissionFlowViewModel.state.collectAsState()
 
-    // Start permission flow ONCE
+    // 1. Trigger navigation whenever isComplete is true
+    LaunchedEffect(flowState.isComplete) {
+        if (flowState.isComplete) {
+            onAllPermissionsGranted()
+        }
+    }
+
+    // 2. Start flow ONCE
     LaunchedEffect(Unit) {
         permissionFlowViewModel.start(permissionViewModel)
     }
 
-    when {
-        flowState.isComplete -> {
-            LaunchedEffect(true) {
-                    onAllPermissionsGranted()
-            }
-        }
-
-        flowState.currentPermission != null -> {
-            PermissionScreen(
-                viewModel = permissionViewModel,
-                onGranted = {
-                    permissionFlowViewModel.onPermissionResolved(permissionViewModel)
-                }, flowState.currentPermission
-            )
-        }
+    // 3. UI logic
+    if (!flowState.isComplete && flowState.currentPermission != null) {
+        PermissionScreen(
+            viewModel = permissionViewModel,
+            onGranted = {
+                permissionFlowViewModel.onPermissionResolved(permissionViewModel)
+            },
+            permissionType = flowState.currentPermission!!
+        )
     }
 }

@@ -23,6 +23,9 @@ object PermissionText {
 
             PermissionState.Denied ->
                 R.string.permission_denied
+            
+            PermissionState.Rationale ->
+                R.string.permission_rationale
 
             PermissionState.PermanentlyDenied ->
                 R.string.permission_permanently_denied
@@ -32,5 +35,10 @@ object PermissionText {
         }
 
     @StringRes
-    fun action(): Int = R.string.permission_allow
+    fun action(state: PermissionState): Int = 
+        when (state) {
+            PermissionState.PermanentlyDenied -> R.string.permission_settings
+            PermissionState.Rationale -> R.string.permission_retry
+            else -> R.string.permission_allow
+        }
 }

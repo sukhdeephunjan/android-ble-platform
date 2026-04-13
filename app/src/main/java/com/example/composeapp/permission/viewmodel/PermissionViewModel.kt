@@ -23,8 +23,11 @@ class PermissionViewModel @Inject constructor() :
         )
 
     val uiState: StateFlow<PermissionUiState> = _uiState.asStateFlow()
+
     fun setPermission(type: PermissionType) {
-        _uiState.value = PermissionUiState(permissionType = type)
+        if (_uiState.value.permissionType != type) {
+            _uiState.value = PermissionUiState(permissionType = type)
+        }
     }
 
     fun onEvent(event: PermissionEvent) {
@@ -38,7 +41,7 @@ class PermissionViewModel @Inject constructor() :
 
                 PermissionEvent.PermissionDenied ->
                     state.copy(
-                        state = PermissionState.Denied,
+                        state = PermissionState.Rationale,
                         error = PermissionError.Denied
                     )
 
@@ -49,7 +52,9 @@ class PermissionViewModel @Inject constructor() :
                     )
 
                 PermissionEvent.PermissionRequest ->
-                    state
+                    state.copy(
+                        state = PermissionState.Requested
+                    )
             }
         }
     }

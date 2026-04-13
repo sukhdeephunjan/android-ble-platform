@@ -51,11 +51,10 @@ fun PermissionContent(
             Button(onClick = onRequest) {
                 Text(
                     text = stringResource(
-                        id = PermissionText.action()
+                        id = PermissionText.action(state)
                     )
                 )
             }
         }
     }
 }
-

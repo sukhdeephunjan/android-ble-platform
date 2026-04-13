@@ -24,9 +24,8 @@ class SplashViewModel @Inject constructor(private val
     val destination: StateFlow<Screen?> =
         sessionManager.userFlow
             .map { user ->
-                if (user != null) Screen.Home else Screen.Login
-            }
-            .stateIn(
+                if (user != null) Screen.Permission else Screen.Login
+            }.stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5_000),
                 initialValue = Screen.Login
