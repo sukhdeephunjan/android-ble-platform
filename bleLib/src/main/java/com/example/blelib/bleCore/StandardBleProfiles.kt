@@ -1,7 +1,5 @@
 package com.example.blelib.bleCore
 
-import HeartRateParser
-
 
 /**
  * Bluetooth SIG standard profiles supported by the platform.

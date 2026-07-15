@@ -9,5 +9,6 @@ enum class ValidationErrorType {
     EMPTY_EMAIL,
     INVALID_EMAIL,
     EMPTY_PASSWORD,
+    PASSWORD_TOO_SHORT,
     PASSWORD_MISMATCH
 }

@@ -44,7 +44,7 @@ fun SetNavigation() {
             SignupRoute(
                 onSignupSuccess = {
                     navController.navigate(Screen.Permission.route) {
-                        popUpTo(Screen.Signup.route) { inclusive = true }
+                        popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }, onBackToLoginClick = {
                     navController.popBackStack()
@@ -60,12 +60,17 @@ fun SetNavigation() {
             val scanViewModel: ScanViewModel = hiltViewModel()
             ScanScreen(
                 uiState = scanViewModel.uiState,
-                profiles = emptyList(), // Provide profiles if available in VM
                 onProfileSelected = { profileId ->
                     scanViewModel.onEvent(ScanEvent.ProfileSelected(profileId))
                 },
                 onDeviceClick = { device ->
                     scanViewModel.onEvent(ScanEvent.DeviceClicked(device.id))
+                },
+                onStartScan = {
+                    scanViewModel.onEvent(ScanEvent.StartScan)
+                },
+                onStopScan = {
+                    scanViewModel.onEvent(ScanEvent.StopScan)
                 }
             )
         }

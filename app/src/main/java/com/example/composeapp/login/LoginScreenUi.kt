@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.sp
                 value = uiState.username,
                 onValueChange = onUsernameChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Username or Email") },
+                label = { Text("Email") },
                 singleLine = true,
                 isError = uiState.usernameError != null
             )

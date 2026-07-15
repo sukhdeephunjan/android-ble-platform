@@ -3,15 +3,13 @@ package com.example.composeapp.signup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.composeapp.utils.SessionManager
-import com.example.composeapp.validation.SignupFormValidation
 
 @Composable
 fun SignupRoute(
     onSignupSuccess: () -> Unit,
-    onBackToLoginClick: () -> Unit,viewModel: SignUpViewModel = hiltViewModel()
+    onBackToLoginClick: () -> Unit,
+    viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState().value
     LaunchedEffect(Unit) {

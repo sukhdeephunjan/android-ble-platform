@@ -18,10 +18,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val userRepository: IUserRepository, private val sessionManager: SessionManager,
-    val formValidation: SignupFormValidation) : ViewModel() {
+    private val userRepository: IUserRepository,
+    private val sessionManager: SessionManager,
+    private val formValidation: SignupFormValidation
+) : ViewModel() {
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
 
@@ -55,24 +58,33 @@ class SignUpViewModel @Inject constructor(
         _uiState.value = state.copy(
             userEmailError = null,
             userPasswordError = null,
+            userConfirmPasswordError = null,
             userSignUpError = null
         )
 
         var hasError = false
         var usernameError: String? = null
         var passwordError: String? = null
+        var confirmPasswordError: String? = null
 
         val usernameResult = formValidation.validateUsername(state.userEmail)
         val passwordResult = formValidation.validatePassword(state.userPassword)
+        val confirmPasswordResult = formValidation.validateConfirmPassword(
+            state.userPassword, state.userConfirmPassword
+        )
 
         if (usernameResult is ValidationResult.Error) {
             usernameError = ValidationUiMapper.map(usernameResult.type)
             hasError = true
         }
 
-        // Handle password validation
         if (passwordResult is ValidationResult.Error) {
             passwordError = ValidationUiMapper.map(passwordResult.type)
+            hasError = true
+        }
+
+        if (confirmPasswordResult is ValidationResult.Error) {
+            confirmPasswordError = ValidationUiMapper.map(confirmPasswordResult.type)
             hasError = true
         }
 
@@ -80,17 +92,12 @@ class SignUpViewModel @Inject constructor(
         if (hasError) {
             _uiState.value = state.copy(
                 userEmailError = usernameError,
-                userPasswordError = passwordError
+                userPasswordError = passwordError,
+                userConfirmPasswordError = confirmPasswordError
             )
             return
         }
-        // Clear old errors before API call
-        _uiState.value = state.copy(
-            userEmailError = null,
-            userPasswordError = null,
-            userSignUpError = null
-        )
-        //_uiState.value = state.copy(loginError = null) // Reset previous errors
+
         LoadingManager.isLoading = true
         viewModelScope.launch {
             try {
@@ -102,10 +109,6 @@ class SignUpViewModel @Inject constructor(
                         sessionManager.saveUser(
                             userId = result.data,
                             username = state.userEmail
-                        )
-                        _uiState.value = state.copy(
-                            //isSignUpSuccess = true,
-                            userSignUpError = null
                         )
                         _uiEvent.emit(SignupUiEvent.signupSuccess)
                     }
@@ -121,7 +124,6 @@ class SignUpViewModel @Inject constructor(
                     userSignUpError = e.message ?: "Something went wrong"
                 )
             } finally {
-                // Hide global loader
                 LoadingManager.isLoading = false
             }
         }

@@ -1,61 +1,36 @@
 package com.example.composeapp.permission.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.composeapp.permission.PermissionError
 import com.example.composeapp.permission.PermissionEvent
 import com.example.composeapp.permission.PermissionType
 import com.example.composeapp.permission.permissionstate.PermissionState
-import com.example.composeapp.permission.permissionstate.PermissionUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
-class PermissionViewModel @Inject constructor() :
-    ViewModel() {
+class PermissionViewModel @Inject constructor() : ViewModel() {
 
-    private val _uiState =
-        MutableStateFlow(
-            PermissionUiState(permissionType = PermissionType.BLE)
-        )
+    private val _permissionType = MutableStateFlow(PermissionType.BLE)
+    val permissionType: StateFlow<PermissionType> = _permissionType.asStateFlow()
 
-    val uiState: StateFlow<PermissionUiState> = _uiState.asStateFlow()
+    private val _permissionState = MutableStateFlow<PermissionState>(PermissionState.Requested)
+    val permissionState: StateFlow<PermissionState> = _permissionState.asStateFlow()
 
-    fun setPermission(type: PermissionType) {
-        if (_uiState.value.permissionType != type) {
-            _uiState.value = PermissionUiState(permissionType = type)
-        }
+    fun setPermissionType(type: PermissionType) {
+        _permissionType.value = type
+        _permissionState.value = PermissionState.Requested
     }
 
     fun onEvent(event: PermissionEvent) {
-        _uiState.update { state ->
-            when (event) {
-                PermissionEvent.PermissionGranted ->
-                    state.copy(
-                        state = PermissionState.Granted,
-                        error = null
-                    )
-
-                PermissionEvent.PermissionDenied ->
-                    state.copy(
-                        state = PermissionState.Rationale,
-                        error = PermissionError.Denied
-                    )
-
-                PermissionEvent.PermissionPermanentlyDenied ->
-                    state.copy(
-                        state = PermissionState.PermanentlyDenied,
-                        error = PermissionError.PermanentlyDenied
-                    )
-
-                PermissionEvent.PermissionRequest ->
-                    state.copy(
-                        state = PermissionState.Requested
-                    )
-            }
+        _permissionState.value = when (event) {
+            PermissionEvent.PermissionGranted -> PermissionState.Granted
+            PermissionEvent.PermissionDenied -> PermissionState.Denied
+            PermissionEvent.PermissionPermanentlyDenied -> PermissionState.PermanentlyDenied
+            PermissionEvent.PermissionRequest -> PermissionState.Rationale
         }
     }
 }
+

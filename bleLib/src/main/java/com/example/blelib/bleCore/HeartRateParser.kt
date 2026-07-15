@@ -1,6 +1,4 @@
-import com.example.blelib.bleCore.ByteReader
-import com.example.blelib.bleCore.CharacteristicParser
-import com.example.blelib.bleCore.HeartRateData
+package com.example.blelib.bleCore
 
 object HeartRateParser : CharacteristicParser<HeartRateData> {
 

@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.composeapp.global.ErrorUiMapper
 import com.example.composeapp.global.LoadingManager
 import com.example.composeapp.utils.SessionManager
-import com.example.composeapp.validation.AuthFormValidation
 import com.example.composeapp.validation.LoginFormValidation
-
 import com.example.composeapp.validation.ValidationResult
 import com.example.composeapp.validation.ValidationUiMapper
 import com.example.datalib.resultHandling.Resource
@@ -77,12 +75,6 @@ class LoginViewModel @Inject constructor( private val userRepository: IUserRepos
             )
             return
         }
-        // 5️⃣ Clear old errors before API call
-        _uiState.value = state.copy(
-            usernameError = null,
-            passwordError = null,
-        )
-        //_uiState.value = state.copy(loginError = null) // Reset previous errors
 
         LoadingManager.isLoading = true
         viewModelScope.launch {

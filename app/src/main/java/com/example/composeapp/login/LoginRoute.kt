@@ -3,11 +3,7 @@ package com.example.composeapp.login
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.composeapp.signup.SignUpViewModel
-import com.example.composeapp.utils.SessionManager
-import com.example.composeapp.validation.LoginFormValidation
 import com.example.datalib.user.UserEntity
 @Composable
 fun LoginRoute(onLoginSuccess: (UserEntity) -> Unit,

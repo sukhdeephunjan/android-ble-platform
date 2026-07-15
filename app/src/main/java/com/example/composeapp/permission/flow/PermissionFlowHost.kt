@@ -1,9 +1,15 @@
 package com.example.composeapp.permission.flow
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import com.example.composeapp.permission.PermissionEvent
+import com.example.composeapp.permission.PermissionMapper
+import com.example.composeapp.permission.PermissionRequest
 import com.example.composeapp.permission.ui.PermissionScreen
 import com.example.composeapp.permission.viewmodel.PermissionFlowViewModel
 import com.example.composeapp.permission.viewmodel.PermissionViewModel
@@ -14,28 +20,53 @@ fun PermissionFlowHost(
     permissionFlowViewModel: PermissionFlowViewModel,
     onAllPermissionsGranted: () -> Unit
 ) {
-    val flowState by permissionFlowViewModel.state.collectAsState()
+    val context = LocalContext.current
+    val currentPermissionType by permissionFlowViewModel.currentPermission.collectAsState()
+    val permissionState by permissionViewModel.permissionState.collectAsState()
 
-    // 1. Trigger navigation whenever isComplete is true
-    LaunchedEffect(flowState.isComplete) {
-        if (flowState.isComplete) {
+    // Sync current permission type into PermissionViewModel when it changes
+    LaunchedEffect(currentPermissionType) {
+        currentPermissionType?.let { permissionViewModel.setPermissionType(it) }
+    }
+
+    // Listen for all-granted event
+    LaunchedEffect(Unit) {
+        permissionFlowViewModel.allPermissionsGranted.collect {
             onAllPermissionsGranted()
         }
     }
 
-    // 2. Start flow ONCE
-    LaunchedEffect(Unit) {
-        permissionFlowViewModel.start(permissionViewModel)
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        val mapped = PermissionMapper.map(context, result)
+        currentPermissionType?.let { type ->
+            if (mapped.granted) {
+                permissionViewModel.onEvent(PermissionEvent.PermissionGranted)
+                permissionFlowViewModel.onPermissionGranted(type)
+            } else if (mapped.permanentlyDenied) {
+                permissionViewModel.onEvent(PermissionEvent.PermissionPermanentlyDenied)
+            } else {
+                permissionViewModel.onEvent(PermissionEvent.PermissionDenied)
+            }
+        }
     }
 
-    // 3. UI logic
-    if (!flowState.isComplete && flowState.currentPermission != null) {
+    currentPermissionType?.let { type ->
         PermissionScreen(
-            viewModel = permissionViewModel,
-            onGranted = {
-                permissionFlowViewModel.onPermissionResolved(permissionViewModel)
+            permissionType = type,
+            permissionState = permissionState,
+            onRequestPermission = {
+                permissionLauncher.launch(PermissionRequest.permissionsFor(type))
             },
-            permissionType = flowState.currentPermission!!
+            onOpenSettings = {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+                context.startActivity(intent)
+            }
         )
     }
 }
+
+

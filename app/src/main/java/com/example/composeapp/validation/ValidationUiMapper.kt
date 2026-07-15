@@ -13,6 +13,9 @@ object ValidationUiMapper {
             ValidationErrorType.EMPTY_PASSWORD ->
                 "Password can't be empty"
 
+            ValidationErrorType.PASSWORD_TOO_SHORT ->
+                "Password must be at least 8 characters"
+
             ValidationErrorType.PASSWORD_MISMATCH ->
                 "Passwords do not match"
         }

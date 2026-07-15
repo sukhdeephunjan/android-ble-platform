@@ -1,52 +1,46 @@
 package com.example.composeapp.permission.viewmodel
 
-
-import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.composeapp.permission.PermissionType
-import com.example.composeapp.permission.flow.PermissionFlowState
-import com.example.composeapp.permission.flow.PermissionStep
-import com.example.composeapp.permission.ui.PermissionChecker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PermissionFlowViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
-) : ViewModel() {
-    
-    // Only BLE permission is required
-    private val steps = listOf(
-        PermissionStep(PermissionType.BLE, mandatory = true)
-    )
-    
-    private val _state = MutableStateFlow(PermissionFlowState())
-    val state: StateFlow<PermissionFlowState> = _state.asStateFlow()
+class PermissionFlowViewModel @Inject constructor() : ViewModel() {
 
-    fun start(permissionViewModel: PermissionViewModel) {
-        processNextStep(permissionViewModel)
-    }
+    // BLE apps require BLE + Location permissions
+    private val requiredPermissions = listOf(PermissionType.BLE, PermissionType.LOCATION)
+    private val grantedPermissions = mutableSetOf<PermissionType>()
 
-    fun onPermissionResolved(permissionViewModel: PermissionViewModel) {
-        processNextStep(permissionViewModel)
-    }
+    private val _currentPermission = MutableStateFlow<PermissionType?>(requiredPermissions.first())
+    val currentPermission: StateFlow<PermissionType?> = _currentPermission.asStateFlow()
 
-    private fun processNextStep(permissionViewModel: PermissionViewModel) {
-        // Find the first step that hasn't been granted yet
-        val nextStep = steps.firstOrNull { step ->
-            !PermissionChecker.isGranted(context, step.type)
+    private val _allPermissionsGranted = MutableSharedFlow<Unit>(replay = 0)
+    val allPermissionsGranted = _allPermissionsGranted.asSharedFlow()
+
+    fun onPermissionGranted(type: PermissionType) {
+        grantedPermissions.add(type)
+        val next = requiredPermissions.firstOrNull { it !in grantedPermissions }
+        _currentPermission.value = next
+        if (next == null) {
+            viewModelScope.launch { _allPermissionsGranted.emit(Unit) }
         }
+    }
 
-        if (nextStep == null) {
-            // All mandatory permissions are granted
-            _state.value = PermissionFlowState(isComplete = true)
-        } else {
-            permissionViewModel.setPermission(nextStep.type)
-            _state.value = PermissionFlowState(currentPermission = nextStep.type)
+    fun onPermissionSkipped(type: PermissionType) {
+        // Move to next even if not granted (e.g. Location on older SDK is bundled with BLE)
+        val next = requiredPermissions.firstOrNull { it !in grantedPermissions && it != type }
+        _currentPermission.value = next
+        if (next == null) {
+            viewModelScope.launch { _allPermissionsGranted.emit(Unit) }
         }
     }
 }
+
