@@ -8,8 +8,10 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.blelib.bleCore.BleProfile
+import com.example.composeapp.R
 
 @Composable
 fun ProfileFilterRow(
@@ -23,12 +25,11 @@ fun ProfileFilterRow(
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-
         // "All devices" chip
         FilterChip(
             selected = selectedProfileId == null,
             onClick = { onProfileSelected(null) },
-            label = { Text("All") }
+            label = { Text(stringResource(R.string.filter_all)) }
         )
 
         // Profile-based chips

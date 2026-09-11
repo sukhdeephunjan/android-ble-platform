@@ -27,6 +27,9 @@ object Uuids {
     const val HEART_RATE_SERVICE =
         "0000180D-0000-1000-8000-00805f9b34fb"
 
+    const val ADAFRUIT_TEMPERATURE_SERVICE =
+        "ADAF0100-C332-42A8-93BD-25E905756CB8"
+
 
     /* ----------------------------- */
     /* Heart Rate Characteristics    */
@@ -40,6 +43,9 @@ object Uuids {
 
     const val HEART_RATE_CONTROL_POINT =
         "00002A39-0000-1000-8000-00805f9b34fb"
+
+    const val TEMPERATURE_MEASUREMENT =
+        "00002A1C-0000-1000-8000-00805f9b34fb"
 
 
     /* ----------------------------- */

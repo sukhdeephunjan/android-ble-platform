@@ -13,7 +13,6 @@ import com.example.composeapp.permission.flow.PermissionFlowHost
 import com.example.composeapp.signup.SignupRoute
 import com.example.composeapp.splash.SplashRoute
 import com.example.composeapp.bledeviceui.viewmodel.ScanViewModel
-import com.example.composeapp.bledeviceui.events.ScanEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,18 +59,7 @@ fun SetNavigation() {
             val scanViewModel: ScanViewModel = hiltViewModel()
             ScanScreen(
                 uiState = scanViewModel.uiState,
-                onProfileSelected = { profileId ->
-                    scanViewModel.onEvent(ScanEvent.ProfileSelected(profileId))
-                },
-                onDeviceClick = { device ->
-                    scanViewModel.onEvent(ScanEvent.DeviceClicked(device.id))
-                },
-                onStartScan = {
-                    scanViewModel.onEvent(ScanEvent.StartScan)
-                },
-                onStopScan = {
-                    scanViewModel.onEvent(ScanEvent.StopScan)
-                }
+                onEvent = scanViewModel::onEvent
             )
         }
 

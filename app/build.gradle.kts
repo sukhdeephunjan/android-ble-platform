@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(project(":dataLib"))
     implementation(project(":bleLib"))
+    implementation("androidx.compose.material:material-icons-extended")
 
 // For Compose in Activity
 }

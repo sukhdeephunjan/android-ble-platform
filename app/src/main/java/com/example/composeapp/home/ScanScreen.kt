@@ -1,11 +1,16 @@
 package com.example.composeapp.home
 
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.BluetoothSearching
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -13,116 +18,225 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.composeapp.bledeviceui.model.UiBleDevice
+import com.example.composeapp.R
+import com.example.composeapp.bledeviceui.events.ScanEvent
 import com.example.composeapp.bledeviceui.uistate.ScanUiState
 import kotlinx.coroutines.flow.StateFlow
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Always-spinning indicator driven by an explicit infinite transition so it
+ * keeps rotating even when the parent recomposes rapidly due to scan updates.
+ */
 @Composable
-fun ScanScreen(
-    uiState: StateFlow<ScanUiState>,
-    onProfileSelected: (String?) -> Unit,
-    onDeviceClick: (UiBleDevice) -> Unit = {},
-    onStartScan: () -> Unit = {},
-    onStopScan: () -> Unit = {}
+fun SpinningIndicator(
+    modifier: Modifier = Modifier,
+    size: androidx.compose.ui.unit.Dp = 48.dp,
+    strokeWidth: androidx.compose.ui.unit.Dp = ProgressIndicatorDefaults.CircularStrokeWidth
 ) {
-    val state by uiState.collectAsState()
+    val transition = rememberInfiniteTransition(label = "scan_spin")
+    val rotation by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing)
+        ),
+        label = "scan_rotation"
+    )
+    CircularProgressIndicator(
+        modifier = modifier
+            .size(size)
+            .rotate(rotation),
+        strokeWidth = strokeWidth
+    )
+}
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Scan Devices") })
-        },
-        floatingActionButton = {
-            if (state.isScanning) {
-                ExtendedFloatingActionButton(
-                    onClick = onStopScan,
-                    icon = { Icon(Icons.Default.Stop, contentDescription = "Stop") },
-                    text = { Text("Stop") },
-                    containerColor = MaterialTheme.colorScheme.error
-                )
-            } else {
-                ExtendedFloatingActionButton(
-                    onClick = onStartScan,
-                    icon = { Icon(Icons.Default.Search, contentDescription = "Scan") },
-                    text = { Text("Scan") }
-                )
-            }
-        }
-    ) { padding ->
+/**
+ * Shows the latest heart-rate reading with a pulsing heart icon.
+ * While no notification has arrived yet a "waiting" hint is displayed.
+ */
+@Composable
+fun HeartRateCard(bpm: Int?) {
+    val transition = rememberInfiniteTransition(label = "hr_pulse")
+    val scale by transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 600, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "hr_scale"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
         Column(
             modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Profile filter chips — populated from ViewModel state
-            ProfileFilterRow(
-                profiles = state.profiles,
-                selectedProfileId = state.selectedProfileId,
-                onProfileSelected = onProfileSelected
+            Text(
+                text = stringResource(R.string.heart_rate_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(modifier = Modifier.height(12.dp))
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            // Error banner
-            state.errorMessage?.let { error ->
+            if (bpm == null) {
                 Text(
-                    text = error,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.bodySmall
+                    text = stringResource(R.string.heart_rate_waiting),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
                 )
-            }
-
-            // Empty state
-            val displayDevices = state.filteredDevices
-            if (!state.isScanning && displayDevices.isEmpty() && state.errorMessage == null) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Press Scan to discover nearby BLE devices",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
             } else {
-                LazyColumn {
-                    items(displayDevices, key = { it.id }) { device ->
-                        DeviceCard(
-                            device = device,
-                            onClick = { onDeviceClick(device) }
-                        )
-                    }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = stringResource(R.string.cd_heart_rate),
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .scale(scale)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = stringResource(R.string.heart_rate_bpm, bpm),
+                        style = MaterialTheme.typography.displaySmall
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.heart_rate_unit),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeviceCard(
-    device: UiBleDevice,
-    onClick: () -> Unit
+fun ScanScreen(
+    uiState: StateFlow<ScanUiState>,
+    onEvent: (ScanEvent) -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = device.name,
-                style = MaterialTheme.typography.bodyLarge
+    val state by uiState.collectAsState()
+
+    if (state.showDeviceDialog) {
+        DevicePickerDialog(
+            devices = state.filteredDevices,
+            isScanning = state.isScanning,
+            profiles = state.profiles,
+            onDeviceClick = { onEvent(ScanEvent.DeviceClicked(it)) },
+            onDismiss = { onEvent(ScanEvent.DismissDialog) }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.home_title)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFADD8E6),          // light blue background
+                    titleContentColor = Color.Black,
+                    actionIconContentColor = Color.Black
+                ),
+                actions = {
+                    when {
+                        state.isScanning -> {
+                            IconButton(onClick = { onEvent(ScanEvent.StopScan) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Stop,
+                                    contentDescription = stringResource(R.string.cd_stop_scan),
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                        state.connectedDevice != null -> {
+                            IconButton(onClick = { onEvent(ScanEvent.Rescan) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = stringResource(R.string.cd_rescan)
+                                )
+                            }
+                        }
+                        else -> {
+                            IconButton(onClick = { onEvent(ScanEvent.StartScan) }) {
+                                Icon(
+                                    imageVector = Icons.Default.BluetoothSearching,
+                                    contentDescription = stringResource(R.string.cd_scan)
+                                )
+                            }
+                        }
+                    }
+                }
             )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (state.isScanning && state.filteredDevices.isEmpty()) {
+                SpinningIndicator()
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
             Text(
-                text = "RSSI: ${device.rssi} dBm  •  ${device.id}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = state.connectionStateLabel,
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 32.dp)
             )
+
+            state.connectedDevice?.let { device ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.device_mac_rssi, device.id, device.rssi),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+                HeartRateCard(bpm = state.heartRateBpm)
+
+                state.temperatureCelsius?.let { celsius ->
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.temperature_title) + ": " +
+                                stringResource(R.string.temperature_value, celsius),
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            state.errorMessage?.let { error ->
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 32.dp)
+                )
+            }
         }
     }
 }
