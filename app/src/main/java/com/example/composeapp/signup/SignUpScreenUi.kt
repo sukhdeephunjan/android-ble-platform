@@ -1,15 +1,28 @@
 package com.example.composeapp.signup
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.composeapp.ui.theme.HeartSpace.Dp_12
+import com.example.composeapp.ui.theme.HeartSpace.Dp_16
+import com.example.composeapp.ui.theme.HeartSpace.Dp_24
+import com.example.composeapp.ui.theme.HeartSpace.Dp_48
 
 @Composable
 fun SignUpScreenUi(
@@ -23,7 +36,7 @@ fun SignUpScreenUi(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(Dp_24),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -33,7 +46,7 @@ fun SignUpScreenUi(
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Dp_16))
 
         // Email
         OutlinedTextField(
@@ -47,7 +60,7 @@ fun SignUpScreenUi(
         uiState.userEmailError?.let {
             Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Dp_16))
 
         // Password
         OutlinedTextField(
@@ -62,7 +75,7 @@ fun SignUpScreenUi(
         uiState.userPasswordError?.let {
             Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Dp_16))
 
         // Confirm Password
         OutlinedTextField(
@@ -77,12 +90,12 @@ fun SignUpScreenUi(
         uiState.userConfirmPasswordError?.let {
             Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
         }
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Dp_24))
 
         // Sign Up error (backend or validation)
         uiState.userSignUpError?.let {
             Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Dp_12))
         }
 
         // Sign Up Button
@@ -90,12 +103,12 @@ fun SignUpScreenUi(
             onClick = onSignUpClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .height(Dp_48)
         ) {
             Text("Sign Up", fontSize = 16.sp)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Dp_16))
 
         // Back to Login
         TextButton(onClick = onBackToLoginClick) {
@@ -104,25 +117,23 @@ fun SignUpScreenUi(
     }
 }
 
-
-    @Preview(showBackground = true, showSystemUi = true)
-    @Composable
-    fun SignUpScreenPreview() {
-        SignUpScreenUi(
-            uiState = SignUpUiState(
-                userEmail = "",
-                userPassword = "",
-                userConfirmPassword = "",
-                userEmailError = null,
-                userPasswordError = null,
-                userConfirmPasswordError = null,
-                userSignUpError = null
-            ),
-            onEmailChange = {},
-            onPasswordChange = {},
-            onConfirmPasswordChange = {},
-            onSignUpClick = {},
-            onBackToLoginClick = {}
-        )
-    }
-
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun SignUpScreenPreview() {
+    SignUpScreenUi(
+        uiState = SignUpUiState(
+            userEmail = "",
+            userPassword = "",
+            userConfirmPassword = "",
+            userEmailError = null,
+            userPasswordError = null,
+            userConfirmPasswordError = null,
+            userSignUpError = null
+        ),
+        onEmailChange = {},
+        onPasswordChange = {},
+        onConfirmPasswordChange = {},
+        onSignUpClick = {},
+        onBackToLoginClick = {}
+    )
+}

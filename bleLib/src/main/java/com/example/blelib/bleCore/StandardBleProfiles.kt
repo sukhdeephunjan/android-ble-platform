@@ -16,7 +16,7 @@ object StandardBleProfiles : BleProfileProvider {
 
     override fun provideProfiles(): List<BleProfile> = listOf(
         heartRateProfile(),
-        temperatureProfile()
+        temperatureProfile(),
         // batteryProfile()    — add back when Battery pipeline is ready
         // deviceInfoProfile() — add back when Device Information pipeline is ready
     )
@@ -35,6 +35,16 @@ object StandardBleProfiles : BleProfileProvider {
                         properties = setOf(CharacteristicProperty.NOTIFY),
                         enableOnConnect = true,
                         parser = HeartRateParser
+                    ),
+                    BleCharacteristicDef(
+                        uuid = Uuids.BODY_SENSOR_LOCATION,
+                        properties = setOf(CharacteristicProperty.READ),
+                        enableOnConnect = true,
+                        parser = BodySensorLocationParser
+                    ),
+                    BleCharacteristicDef(
+                        uuid = Uuids.HEART_RATE_CONTROL_POINT,
+                        properties = setOf(CharacteristicProperty.WRITE)
                     )
                 )
             )

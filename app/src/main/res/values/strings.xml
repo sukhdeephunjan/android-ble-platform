@@ -44,13 +44,32 @@
     <string name="state_connected_label">Connected to %s</string>
     <string name="state_scan_error">Scan error: %s</string>
 
+    <!-- Connection lost / reconnection -->
+    <string name="connection_lost_title">Connection lost</string>
+    <string name="state_reconnecting">Reconnecting to %1$s (attempt %2$d)…</string>
+    <string name="reconnect_hint">Keep the device powered on and nearby — it will reconnect automatically.</string>
+
     <!-- Live sensor data -->
     <string name="heart_rate_title">Heart Rate</string>
     <string name="heart_rate_bpm">%d</string>
     <string name="heart_rate_unit">BPM</string>
     <string name="heart_rate_waiting">Waiting for heart rate data\u2026</string>
+    <string name="body_sensor_location_title">Body Sensor Location</string>
+    <string name="body_sensor_location_label">Location: %s</string>
     <string name="temperature_title">Temperature</string>
     <string name="temperature_value">%.1f °C</string>
     <string name="cd_heart_rate">Heart rate</string>
+
+    <!-- Live data tabs & charts -->
+    <string name="tab_heart_rate">Heart Rate</string>
+    <string name="tab_temperature">Temperature</string>
+    <string name="temperature_unit">°C</string>
+    <string name="temperature_waiting">Waiting for temperature data…</string>
+    <string name="axis_bpm">BPM</string>
+    <string name="axis_celsius">°C</string>
+    <string name="axis_seconds_ago">Time (seconds ago)</string>
+    <string name="stat_min">MIN</string>
+    <string name="stat_avg">AVG</string>
+    <string name="stat_max">MAX</string>
 
 </resources>

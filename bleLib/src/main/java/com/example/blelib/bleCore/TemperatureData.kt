@@ -1,13 +1,16 @@
 package com.example.blelib.bleCore
 
-enum class TemperatureUnit { CELSIUS, FAHRENHEIT }
+/** Unit reported by the peripheral in the Health Thermometer flags byte. */
+enum class TemperatureUnit {
+    CELSIUS,
+    FAHRENHEIT
+}
 
 /**
- * Parsed result from the Health Thermometer Measurement characteristic (0x2A1C).
+ * A single temperature measurement.
  *
- * @param celsius  Temperature in Celsius (always present — converted if device sent Fahrenheit).
- * @param fahrenheit  Temperature in Fahrenheit.
- * @param unit  The unit originally reported by the peripheral.
+ * [fahrenheit] is derived from [celsius] when not supplied, so callers can pick
+ * whichever scale they need without repeating the conversion.
  */
 data class TemperatureData(
     val celsius: Float,

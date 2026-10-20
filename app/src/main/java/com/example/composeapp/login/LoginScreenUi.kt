@@ -20,115 +20,123 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.composeapp.ui.theme.HeartSpace.Dp_12
+import com.example.composeapp.ui.theme.HeartSpace.Dp_16
+import com.example.composeapp.ui.theme.HeartSpace.Dp_20
+import com.example.composeapp.ui.theme.HeartSpace.Dp_24
+import com.example.composeapp.ui.theme.HeartSpace.Dp_4
+import com.example.composeapp.ui.theme.HeartSpace.Dp_48
+import com.example.composeapp.ui.theme.HeartSpace.Dp_8
 
 @Composable
-    fun LoginScreenUi(uiState: LoginUiState,
-                      onUsernameChange: (String) -> Unit,
-                      onPasswordChange: (String) -> Unit,
-                      onSignInClick: () -> Unit,
-                      onSignUpClick:()->Unit) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Title
+fun LoginScreenUi(
+    uiState: LoginUiState,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onSignInClick: () -> Unit,
+    onSignUpClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(Dp_24),
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Title
+        Text(
+            text = "Login",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(Dp_8))
+        // Subtitle / description
+        Text(
+            text = "Sign in to continue using the app. Please enter your credentials below.",
+            fontSize = 14.sp,
+            color = Color.Gray
+        )
+        Spacer(modifier = Modifier.height(Dp_20))
+        // Username / Email
+        OutlinedTextField(
+            value = uiState.username,
+            onValueChange = onUsernameChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Email") },
+            singleLine = true,
+            isError = uiState.usernameError != null
+        )
+        uiState.usernameError?.let { error ->
+            Text(text = error, color = Color.Red, fontSize = 12.sp)
+        }
+        Spacer(modifier = Modifier.height(Dp_16))
+        // Password
+        OutlinedTextField(
+            value = uiState.password,
+            onValueChange = onPasswordChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Password") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            isError = uiState.passwordError != null
+        )
+        uiState.passwordError?.let { error ->
+            Text(text = error, color = Color.Red, fontSize = 12.sp)
+        }
+        Spacer(modifier = Modifier.height(Dp_8))
+        // Forgot password
+        Text(
+            text = "Forgot Password?",
+            modifier = Modifier.align(Alignment.End).padding(top = Dp_4),
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 14.sp
+        )
+        Spacer(modifier = Modifier.height(Dp_24))
+        uiState.loginError?.let { error ->
             Text(
-                text = "Login",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            // Subtitle / description
-            Text(
-                text = "Sign in to continue using the app. Please enter your credentials below.",
+                text = error,
+                color = Color.Red,
                 fontSize = 14.sp,
-                color = Color.Gray
+                modifier = Modifier.padding(bottom = Dp_12)
             )
-            Spacer(modifier = Modifier.height(20.dp))
-            // Username / Email
-            OutlinedTextField(
-                value = uiState.username,
-                onValueChange = onUsernameChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Email") },
-                singleLine = true,
-                isError = uiState.usernameError != null
-            )
-            uiState.usernameError?.let { error ->
-                Text(text = error, color = Color.Red, fontSize = 12.sp)
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            // Password
-            OutlinedTextField(
-                value = uiState.password,
-                onValueChange = onPasswordChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Password") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                isError = uiState.passwordError != null
-            )
-            uiState.passwordError?.let { error ->
-                Text(text = error, color = Color.Red, fontSize = 12.sp)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            // Forgot password
+        }
+        // Sign In button
+        Button(
+            onClick = onSignInClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(Dp_48),
+        ) { Text("Sign In", fontSize = 16.sp) }
+
+        Spacer(modifier = Modifier.height(Dp_24))
+        // Sign up text
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
             Text(
-                text = "Forgot Password?",
-                modifier = Modifier.align(Alignment.End).padding(top = 4.dp),
-                color = MaterialTheme.colorScheme.primary,
+                text = "Don’t have an account? ",
                 fontSize = 14.sp
             )
-            Spacer(modifier = Modifier.height(24.dp))
-            uiState.loginError?.let { error ->
-                Text(
-                    text = error,
-                    color = Color.Red,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-            }
-            // Sign In button
-            Button(
-                onClick = onSignInClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-            ) { Text("Sign In", fontSize = 16.sp) }
-
-            Spacer(modifier = Modifier.height(24.dp))
-            // Sign up text
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "Don’t have an account? ",
-                    fontSize = 14.sp
-                )
-                Text(
-                    text = "Sign Up",
-                    fontSize = 16.sp,
-                    modifier = Modifier.clickable {
-                        onSignUpClick()
-                    },
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+            Text(
+                text = "Sign Up",
+                fontSize = 16.sp,
+                modifier = Modifier.clickable {
+                    onSignUpClick()
+                },
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
+}
 
-    @Preview(showBackground = true, showSystemUi = true)
-    @Composable
-    fun LoginScreenPreview() {
-        LoginScreenUi(
-            uiState = LoginUiState(),
-            onUsernameChange = {},
-            onPasswordChange = {},
-            onSignInClick = {},
-            onSignUpClick = {}
-        )
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun LoginScreenPreview() {
+    LoginScreenUi(
+        uiState = LoginUiState(),
+        onUsernameChange = {},
+        onPasswordChange = {},
+        onSignInClick = {},
+        onSignUpClick = {}
+    )
 }

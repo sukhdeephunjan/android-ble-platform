@@ -9,12 +9,12 @@ import androidx.room.Query
 interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(user: UserRoomEntity): Long
-
-    @Query("SELECT * FROM users WHERE username = :username AND password = :password LIMIT 1")
-    suspend fun findByCredentials(username: String, password: String): UserRoomEntity?
+    suspend fun insert(user: UserDbEntity): Long
 
     @Query("SELECT * FROM users WHERE username = :username LIMIT 1")
-    suspend fun findByUsername(username: String): UserRoomEntity?
+    suspend fun findByUsername(username: String): UserDbEntity?
+
+    @Query("SELECT COUNT(*) FROM users WHERE username = :username")
+    suspend fun countByUsername(username: String): Int
 }
 

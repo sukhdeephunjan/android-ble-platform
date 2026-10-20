@@ -4,11 +4,16 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [UserRoomEntity::class],
+    entities = [UserDbEntity::class],
     version = 1,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
+
     abstract fun userDao(): UserDao
+
+    companion object {
+        const val NAME = "ble_platform.db"
+    }
 }
 

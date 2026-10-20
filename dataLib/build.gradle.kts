@@ -57,6 +57,9 @@ dependencies {
     implementation("androidx.room:room-paging:2.6.1")
     implementation("javax.inject:javax.inject:1")
 
+    // Coroutines (Dispatchers / withContext used by the repositories)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 

@@ -80,4 +80,14 @@ object Uuids {
 
     const val NPH_MEASUREMENT =
         "YYYYYYYY-YYYY-YYYY-YYYY-YYYYYYYYYYYY"
+
+
+    /* ----------------------------- */
+    /* Standard GATT Descriptors     */
+    /* ----------------------------- */
+
+    const val CLIENT_CHARACTERISTIC_CONFIG =
+        "00002902-0000-1000-8000-00805f9b34fb"
+
+    const val CCCD = CLIENT_CHARACTERISTIC_CONFIG
 }

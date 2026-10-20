@@ -86,6 +86,8 @@ dependencies {
     implementation(project(":dataLib"))
     implementation(project(":bleLib"))
     implementation("androidx.compose.material:material-icons-extended")
+    // Charting — Vico (Apache-2.0), Compose-native line charts
+    implementation(libs.vico.compose.m3)
 
 // For Compose in Activity
 }
